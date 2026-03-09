@@ -1,9 +1,0 @@
-.env
-.venv
-/.venv
-/.env
-/frontend/node_modules
-/frontend/.env
-/frontend/.next
-__pycache__
-alembic.ini
