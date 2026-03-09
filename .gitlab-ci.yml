@@ -1,31 +1,96 @@
-# You can override the included template(s) by including variable overrides
-# SAST customization: https://docs.gitlab.com/user/application_security/sast/#available-cicd-variables
-# Secret Detection customization: https://docs.gitlab.com/user/application_security/secret_detection/pipeline/configure/
-# Dependency Scanning customization: https://docs.gitlab.com/user/application_security/dependency_scanning/#customizing-analyzer-behavior
-# Container Scanning customization: https://docs.gitlab.com/user/application_security/container_scanning/#customizing-analyzer-behavior
-# Note that environment variables can be set in several places
-# See https://docs.gitlab.com/ci/variables/#cicd-variable-precedence
 stages:
-- build
-- test
-- deploy
-- review
-- dast
-- staging
-- canary
-- production
-- incremental rollout 10%
-- incremental rollout 25%
-- incremental rollout 50%
-- incremental rollout 100%
-- performance
-- cleanup
-- secret-detection
-sast:
+  - build
+  - test
+  - deploy
+
+backend:build:
+  stage: build
+  image: python:3.11-slim
+  rules:
+    - changes:
+        - backend/**/*
+  script:
+    - pip install --upgrade pip
+    - pip install -r backend/requirements.txt
+  artifacts:
+    paths:
+      - backend/
+    expire_in: 1 hour
+
+backend:test:
   stage: test
-include:
-- template: Auto-DevOps.gitlab-ci.yml
-variables:
-  SECRET_DETECTION_ENABLED: 'true'
-secret_detection:
-  stage: secret-detection
+  image: python:3.11-slim
+  needs: [backend:build]
+  rules:
+    - changes:
+        - backend/**/*
+  services:
+    - postgres:15-alpine
+  variables:
+    POSTGRES_DB: ditdik_test
+    POSTGRES_USER: testuser
+    POSTGRES_PASSWORD: testpassword
+    DATABASE_URL: postgresql://testuser:testpassword@postgres/ditdik_test
+    SECRET_KEY: ci_test_secret
+    N8N_BASE_URL: http://localhost:5678
+    N8N_API_KEY: ci_test_key
+  script:
+    - pip install --upgrade pip
+    - pip install -r backend/requirements.txt pytest pytest-asyncio httpx
+    - cd backend && python -m pytest tests/ -v --tb=short
+
+backend:deploy:
+  stage: deploy
+  image: python:3.11-slim
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - backend/**/*
+  environment:
+    name: production
+    url: $BACKEND_PROD_URL
+  script:
+    - echo "Deploy backend to production"
+    # - ssh $DEPLOY_USER@$DEPLOY_HOST "cd /app/backend && git pull && pip install -r requirements.txt && systemctl restart ditdik-api"
+
+frontend:build:
+  stage: build
+  image: node:20-alpine
+  rules:
+    - changes:
+        - frontend/**/*
+  script:
+    - cd frontend
+    - npm ci
+    - npm run build
+  artifacts:
+    paths:
+      - frontend/.next/
+    expire_in: 1 hour
+
+frontend:test:
+  stage: test
+  image: node:20-alpine
+  needs: [frontend:build]
+  rules:
+    - changes:
+        - frontend/**/*
+  script:
+    - cd frontend
+    - npm ci
+    - npm run lint
+
+frontend:deploy:
+  stage: deploy
+  image: node:20-alpine
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - frontend/**/*
+  environment:
+    name: production
+    url: $FRONTEND_PROD_URL
+  script:
+    - echo "Deploy frontend to production"
+    # - npm install -g pm2
+    # - cd frontend && npm ci && npm run build && pm2 restart ditdik-frontend
