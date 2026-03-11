@@ -1,12 +1,7 @@
-import Link from "next/link";
+import { redirect } from "next/navigation";
 
-export default function HomePage() {
-  return (
-    <main className="min-h-screen">
-      <h1 className="text-3xl font-bold">Platform otomasi</h1>
-      <Link href="/login">
-        Login
-      </Link>
-    </main>
-  );
+export default async function RootPage() {
+  // TODO: auth token
+  const isLoggedIn = false;
+  redirect(isLoggedIn ? "/dashboard" : "/login");
 }
