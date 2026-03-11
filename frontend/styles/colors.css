@@ -1,0 +1,57 @@
+/* Raw palette
+   Do not use directly */
+:root {
+  /* Teal */
+  --palette-teal-brand:   #166874;
+  --palette-teal-neutral: #272727;
+  --palette-teal-mid:     #23373a;
+
+  /* Purple */
+  --palette-purple-brand:   #451971;
+  --palette-purple-neutral: #272727;
+  --palette-purple-mid:     #2E1F3D;
+
+  /* Dark */
+  --palette-dark-brand:     #272727;
+}
+
+/* Theme: teal (default) */
+:root,
+[data-theme="teal"] {
+  --theme-brand:        var(--palette-teal-brand);
+  --theme-ink:          var(--palette-teal-neutral);
+  --theme-panel-bg:     linear-gradient(to bottom, var(--palette-teal-neutral) 0%, var(--palette-teal-mid) 50%, var(--palette-teal-brand) 100%);
+  --theme-field-bg:     rgba(39, 39, 39, 0.05);
+  --theme-field-border: rgba(39, 39, 39, 0.25);
+}
+
+/* Theme: purple */
+[data-theme="purple"] {
+  --theme-brand:        var(--palette-purple-brand);
+  --theme-ink:          var(--palette-purple-neutral);
+  --theme-panel-bg:     linear-gradient(to bottom, var(--palette-purple-neutral) 0%, var(--palette-purple-mid) 50%, var(--palette-purple-brand) 100%);
+  --theme-field-bg:     rgba(39, 39, 39, 0.05);
+  --theme-field-border: rgba(39, 39, 39, 0.25);
+}
+
+/* Theme: dark */
+[data-theme="dark"] {
+  --theme-brand:        var(--palette-dark-brand);
+  --theme-ink:          var(--palette-dark-brand);
+  --theme-panel-bg:     var(--palette-dark-brand);
+  --theme-field-bg:     rgba(39, 39, 39, 0.05);
+  --theme-field-border: rgba(39, 39, 39, 0.25);
+}
+
+/* ─── Tailwind token registration ────────────────────────────────────────────
+   Components reference only these semantic names, never palette values.
+   Switching data-theme on <html> is all that's needed to change the theme.
+──────────────────────────────────────────────────────────────────────────── */
+@theme {
+  --color-brand:         var(--theme-brand);
+  --color-ink:           var(--theme-ink);
+  --color-field-bg:      var(--theme-field-bg);
+  --color-field-border:  var(--theme-field-border);
+  --color-surface-white: #ffffff;
+  --font-sans:           var(--font-poppins);
+}
