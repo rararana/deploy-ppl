@@ -70,8 +70,8 @@ def login(payload: LoginRequest, db: Session) -> TokenResponse:
     
     # Validate account exists
     if not account:
-        # add dummy verif pw for timing attack prevention
-        verify_password(payload.password, "$2b$12$dummyhashdummyhashdummyhashdummyhashdummyhashdummyhashdummyhash")
+        # add dummy verif pw for timing attack prevention (valid bcrypt hash)
+        verify_password(payload.password, "$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4beSmWX3x.YrP5lq")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password.",

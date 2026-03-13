@@ -12,6 +12,8 @@ python -m venv .venv
 
 # aktivasi venv (disesuaiin sm OP / shells yg dipake)
 .\.venv\Scripts\Activate.ps1
+## linux
+source .venv/bin/activate
 
 # persiapan BE (janlup buat .env, kredensial postgres bener)
 cd backend
