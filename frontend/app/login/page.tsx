@@ -6,6 +6,7 @@ import Image from "next/image";
 import FormField from "../_components/FormField";
 import PrimaryButton from "../_components/PrimaryButton";
 import Logo from "../_components/Logo";
+import { login } from "../_lib/auth";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -20,11 +21,10 @@ export default function LoginPage() {
     setIsLoading(true);
     setError(null);
     try {
-      // TODO: auth
-      await new Promise((resolve) => setTimeout(resolve, 300));
+      await login({ email, password });
       router.push("/dashboard");
-    } catch {
-      setError("Invalid email or password.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Invalid email or password.");
       setIsLoading(false);
     }
   }
