@@ -4,7 +4,7 @@ from jose import JWTError
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.core.security import decode_access_token
+from app.core.security import decode_access_token, is_token_revoked
 from app.models.account import Account
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
@@ -19,6 +19,10 @@ def get_current_account(
         detail="Could not validate credentials.",
         headers={"WWW-Authenticate": "Bearer"},
     )
+
+    if is_token_revoked(token):
+        raise credentials_exception
+
     try:
         payload = decode_access_token(token)
         account_id: str = payload.get("sub")
@@ -36,4 +40,13 @@ def get_current_account(
 def require_admin(current_account: Account = Depends(get_current_account)) -> Account:
     if current_account.role != "admin":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required.")
+    return current_account
+
+
+def require_non_admin(current_account: Account = Depends(get_current_account)) -> Account:
+    if current_account.role == "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="This endpoint is intended for non-admin workflow users.",
+        )
     return current_account

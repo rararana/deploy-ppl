@@ -1,28 +1,30 @@
+from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class WorkflowBase(BaseModel):
-    workflow_name: str
+    name: str
     description: str | None = None
-    n8n_workflow_id: str | None = None
+    workflow_schema: dict = Field(default_factory=dict)
     is_active: bool = True
 
 
 class WorkflowCreate(WorkflowBase):
-    pass
+    webhook_token: str | None = None
 
 
 class WorkflowUpdate(BaseModel):
-    workflow_name: str | None = None
+    name: str | None = None
     description: str | None = None
-    n8n_workflow_id: str | None = None
+    workflow_schema: dict | None = None
     is_active: bool | None = None
 
 
 class WorkflowResponse(WorkflowBase):
-    workflow_id: UUID
-    account_id: UUID
+    id: UUID
+    webhook_token: str
+    created_at: datetime
 
     model_config = {"from_attributes": True}

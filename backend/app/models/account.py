@@ -16,6 +16,3 @@ class Account(Base):
     password_hash = Column(String(255), nullable=False)
     role = Column(Enum("admin", "user", name="account_role"), nullable=False, default="user")
     is_active = Column(Boolean, nullable=False, default=True)
-
-    workflows = relationship("Workflow", back_populates="account", cascade="all, delete-orphan")
-    requests = relationship("Request", back_populates="account", cascade="all, delete-orphan")

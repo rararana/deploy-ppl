@@ -30,8 +30,6 @@ backend:test:
     POSTGRES_PASSWORD: testpassword
     DATABASE_URL: postgresql://testuser:testpassword@postgres/ditdik_test
     SECRET_KEY: ci_test_secret
-    N8N_BASE_URL: http://localhost:5678
-    N8N_API_KEY: ci_test_key
   before_script:
     - pip install --upgrade pip
     - pip install -r backend/requirements.txt pytest pytest-asyncio httpx
