@@ -20,10 +20,6 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
 
-    # n8n
-    N8N_BASE_URL: str
-    N8N_API_KEY: str
-
     # cors
     ALLOWED_ORIGINS: list[str] = ["http://localhost:3000"]
 

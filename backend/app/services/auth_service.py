@@ -1,7 +1,7 @@
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.core.security import create_access_token, hash_password, verify_password
+from app.core.security import create_access_token, hash_password, revoke_token, verify_password
 from app.models.account import Account
 from app.schemas.account_schema import AccountCreate, LoginRequest, TokenResponse
 
@@ -91,3 +91,8 @@ def login(payload: LoginRequest, db: Session) -> TokenResponse:
     access_token = create_access_token(data={"sub": str(account.account_id), "role": account.role})
     
     return TokenResponse(access_token=access_token, token_type="bearer")
+
+
+def logout(token: str) -> dict[str, str]:
+    revoke_token(token)
+    return {"detail": "Logged out successfully."}

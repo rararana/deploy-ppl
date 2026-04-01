@@ -1,11 +1,15 @@
 from fastapi import APIRouter, Depends
+from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
+from app.api.deps import get_current_account
 from app.core.database import get_db
+from app.models.account import Account
 from app.schemas.account_schema import AccountCreate, AccountResponse, LoginRequest, TokenResponse
 from app.services import auth_service
 
 router = APIRouter(prefix="/auth", tags=["auth"])
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 
 @router.post("/register", response_model=AccountResponse, status_code=201)
@@ -16,3 +20,11 @@ def register(payload: AccountCreate, db: Session = Depends(get_db)):
 @router.post("/login", response_model=TokenResponse)
 def login(payload: LoginRequest, db: Session = Depends(get_db)):
     return auth_service.login(payload, db)
+
+
+@router.post("/logout")
+def logout(
+    token: str = Depends(oauth2_scheme),
+    _: Account = Depends(get_current_account),
+):
+    return auth_service.logout(token)
