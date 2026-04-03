@@ -30,14 +30,14 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="flex h-screen w-screen overflow-hidden">
+    <main className="flex min-h-screen w-full overflow-hidden pb-[env(safe-area-inset-bottom)] md:h-screen">
       {/* Left panel */}
-      <div className="flex flex-col items-center justify-center bg-white px-20 shrink-0 w-[60%]">
+      <div className="flex w-full shrink-0 flex-col items-center justify-center bg-white px-6 py-10 sm:px-10 md:w-[60%] md:px-16 md:py-0 lg:px-20">
         <Logo className="mb-10 text-brand" />
 
-        <h1 className="text-4xl font-semibold text-ink mb-20">Welcome, user!</h1>
+        <h1 className="mb-10 text-3xl font-semibold text-ink md:mb-20 md:text-4xl">Welcome, user!</h1>
 
-        <form onSubmit={handleLogin} className="w-full max-w-xl space-y-5">
+        <form onSubmit={handleLogin} className="w-full max-w-md space-y-5 touch-manipulation md:max-w-xl">
           <div className="flex flex-col gap-1">
             <label htmlFor="email" className="sr-only">Email address</label>
             <FormField
@@ -63,21 +63,21 @@ export default function LoginPage() {
             />
           </div>
 
-          <div className="flex items-center justify-between pt-1">
-            <label htmlFor="remember-me" className="flex items-center gap-3 text-sm font-normal text-ink opacity-50 cursor-pointer select-none">
+          <div className="flex flex-col justify-between gap-2 pt-1 sm:flex-row sm:items-center">
+            <label htmlFor="remember-me" className="flex min-h-11 items-center gap-3 px-1 text-sm font-normal text-ink opacity-70 cursor-pointer select-none">
               <input
                 id="remember-me"
                 type="checkbox"
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
-                className="rounded shrink-0 w-4 h-4 border-2 border-field-border accent-brand"
+                className="h-5 w-5 shrink-0 rounded border-2 border-field-border accent-brand"
               />
               Remember me
             </label>
             <button
               type="button"
               onClick={() => alert("Forgot password")}
-              className="text-sm font-medium underline text-ink hover:opacity-70"
+              className="min-h-11 self-start px-2 text-sm font-medium underline text-ink hover:opacity-70 sm:self-auto"
             >
               Forgot password?
             </button>
@@ -89,7 +89,7 @@ export default function LoginPage() {
             </p>
           )}
 
-          <PrimaryButton type="submit" disabled={isLoading} className="mt-16">
+          <PrimaryButton type="submit" disabled={isLoading} className="mt-10 md:mt-16">
             {isLoading ? (
               <span className="flex items-center justify-center gap-2">
                 <span
@@ -107,7 +107,7 @@ export default function LoginPage() {
 
       {/* Right panel */}
       <div
-        className="flex flex-col items-center justify-center px-16 text-white shrink-0 w-[40%]"
+        className="hidden shrink-0 flex-col items-center justify-center px-16 text-white md:flex md:w-[40%]"
         style={{ background: "var(--theme-panel-bg)" }}
       >
         <Image
