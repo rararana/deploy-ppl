@@ -1,46 +1,23 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import AppShell from "../_components/nav/AppShell";
 import Icon from "../_components/Icon";
+import { apiRequest } from "../_lib/api";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
 type Mode = "trigger" | "action";
-type ItemType = "Event" | "Schedule" | "Webhook" | "API";
 
 interface CatalogItem {
-  iconKey: string;
+  id: string;
+  icon_key: string;
   name: string;
-  desc: string;
-  type: ItemType;
+  description: string;
+  category: string;
+  item_type: string;
+  created_at: string;
 }
-
-// ─── Data ──────────────────────────────────────────────────────────────────────
-
-const TRIGGERS: CatalogItem[] = [
-  { iconKey: "zap",         name: "On Form Submit",      desc: "Fires when a user submits a workflow form.",              type: "Event"    },
-  { iconKey: "clock",       name: "Scheduled Run",       desc: "Trigger at fixed intervals or cron expression.",         type: "Schedule" },
-  { iconKey: "link",        name: "Webhook Received",    desc: "Listens for an inbound HTTP POST to your endpoint.",     type: "Webhook"  },
-  { iconKey: "filePlus",    name: "On Request Created",  desc: "Activates when a new request entry is submitted.",       type: "Event"    },
-  { iconKey: "checkCircle", name: "On Approval",         desc: "Runs after a request receives an approval sign-off.",    type: "Event"    },
-  { iconKey: "xCircle",     name: "On Rejection",        desc: "Triggered when an approver rejects a submission.",       type: "Event"    },
-  { iconKey: "bell",        name: "Status Change",       desc: "Watches for any status transition on a record.",         type: "Schedule" },
-  { iconKey: "radio",       name: "API Event",           desc: "Subscribes to external API events via polling.",         type: "API"      },
-  { iconKey: "upload",      name: "On File Upload",      desc: "Triggers when an attachment is added to a request.",     type: "Event"    },
-];
-
-const ACTIONS: CatalogItem[] = [
-  { iconKey: "mail",      name: "Send Email",          desc: "Dispatch a templated email to one or more recipients.",  type: "API"      },
-  { iconKey: "msg",       name: "Post to Slack",       desc: "Send a message to a Slack channel or direct message.",   type: "Webhook"  },
-  { iconKey: "edit",      name: "Update Record",       desc: "Modify fields on an existing request or entry.",         type: "Event"    },
-  { iconKey: "lock",      name: "Lock Workflow",       desc: "Prevent further edits on a completed workflow.",         type: "Event"    },
-  { iconKey: "chart",     name: "Generate Report",     desc: "Create and store a PDF summary of workflow data.",       type: "API"      },
-  { iconKey: "refresh",   name: "Retry Action",        desc: "Re-run a failed step with exponential backoff.",         type: "Schedule" },
-  { iconKey: "userCheck", name: "Assign User",         desc: "Route a task to a specific team member.",                type: "Event"    },
-  { iconKey: "globe",     name: "HTTP Request",        desc: "Call any external REST endpoint with custom headers.",   type: "Webhook"  },
-  { iconKey: "bellPlus",  name: "Create Notification", desc: "Push an in-app alert to the target user.",               type: "API"      },
-];
 
 // ─── Card ──────────────────────────────────────────────────────────────────────
 
@@ -53,17 +30,17 @@ function CatalogCard({ item, mode }: { item: CatalogItem; mode: Mode }) {
       {/* Icon + type badge */}
       <div className="flex items-start justify-between gap-2">
         <div className="w-[34px] h-[34px] md:w-9 md:h-9 rounded-lg md:rounded-[9px] bg-n-100 flex items-center justify-center text-n-900 shrink-0">
-          <Icon k={item.iconKey} size={16} />
+          <Icon k={item.icon_key} size={16} />
         </div>
         <span className="text-[9px] md:text-[10px] font-semibold tracking-[0.06em] uppercase text-text-secondary bg-n-100 border border-n-200 rounded-full px-[7px] py-[2px] self-start shrink-0">
-          {item.type}
+          {item.item_type}
         </span>
       </div>
 
-      {/* Name + desc */}
+      {/* Name + description */}
       <div>
         <p className="text-[12px] md:text-[13px] font-semibold text-ink leading-[1.3]">{item.name}</p>
-        <p className="text-[10px] md:text-[12px] text-text-secondary leading-[1.5] mt-0.5">{item.desc}</p>
+        <p className="text-[10px] md:text-[12px] text-text-secondary leading-[1.5] mt-0.5">{item.description}</p>
       </div>
 
       {/* CTA — desktop only */}
@@ -82,20 +59,61 @@ function CatalogCard({ item, mode }: { item: CatalogItem; mode: Mode }) {
 export default function CatalogPage() {
   const [mode, setMode] = useState<Mode>("trigger");
   const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [sortBy, setSortBy] = useState<"most_used" | "az" | "type">("type");
+  const [items, setItems] = useState<CatalogItem[]>([]);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedQuery(query);
+    }, 500);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [query]);
+
+  useEffect(() => {
+    async function fetchItems() {
+      try {
+        const response = await apiRequest<CatalogItem[]>(`/catalog/${mode}s`);
+        setItems(response);
+      } catch (error) {
+        console.error("Failed to fetch catalog:", error);
+      }
+    }
+
+    fetchItems();
+  }, [mode]);
 
   function switchMode(next: Mode) {
     setMode(next);
     setQuery("");
+    setDebouncedQuery("");
   }
 
-  const items = mode === "trigger" ? TRIGGERS : ACTIONS;
   const filtered = useMemo(() => {
-    const q = query.toLowerCase();
-    if (!q) return items;
-    return items.filter(
-      (d) => d.name.toLowerCase().includes(q) || d.desc.toLowerCase().includes(q)
-    );
-  }, [items, query]);
+    let result = items;
+    const q = debouncedQuery.toLowerCase();
+    
+    if (q) {
+      result = items.filter(
+        (d) => 
+          d.name?.toLowerCase().includes(q) || 
+          d.description?.toLowerCase().includes(q)
+      );
+    }
+
+    return [...result].sort((a, b) => {
+      if (sortBy === "az") {
+        return a.name.localeCompare(b.name);
+      }
+      if (sortBy === "type") {
+        return (a.item_type || "").localeCompare(b.item_type || "");
+      }
+      return 0; // yang most used masih default order
+    });
+  }, [items, debouncedQuery, sortBy]);
 
   return (
     <AppShell
@@ -211,10 +229,14 @@ export default function CatalogPage() {
             <span className="text-ink font-semibold">{filtered.length}</span>{" "}
             {filtered.length === 1 ? mode : `${mode}s`}
           </p>
-          <select className="text-[12px] font-medium text-text-secondary bg-transparent border-none outline-none cursor-pointer font-sans">
-            <option>Sort: Most used</option>
-            <option>Sort: A–Z</option>
-            <option>Sort: Type</option>
+          <select 
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as any)} 
+            className="text-[12px] font-medium text-text-secondary bg-transparent border-none outline-none cursor-pointer font-sans"
+          >
+            <option value="most_used">Sort: Most used</option>
+            <option value="az">Sort: A–Z</option>
+            <option value="type">Sort: Type</option>
           </select>
         </div>
 
