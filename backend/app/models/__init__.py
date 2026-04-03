@@ -1,4 +1,5 @@
 from app.models.account import Account
+from app.models.catalog_model import CatalogItem
 from app.models.execution_log import ExecutionLog
 from app.models.execution_model import ExecutionModel
 from app.models.request_log import RequestLog
@@ -12,4 +13,5 @@ __all__ = [
 	"ExecutionLog",
 	"ExecutionModel",
 	"TaskLogModel",
+	"CatalogItem",
 ]
