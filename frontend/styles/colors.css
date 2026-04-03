@@ -1,57 +1,96 @@
 /* Raw palette
    Do not use directly */
 :root {
-  /* Teal */
-  --palette-teal-brand:   #166874;
-  --palette-teal-neutral: #272727;
-  --palette-teal-mid:     #23373a;
+  /* Core brand colors */
+  --palette-deep-sea: #156874;
+  --palette-steam:    #EDE6E6;
 
-  /* Purple */
-  --palette-purple-brand:   #451971;
-  --palette-purple-neutral: #272727;
-  --palette-purple-mid:     #2E1F3D;
+  /* Deep Sea derivatives */
+  --palette-deep-sea-700: #0f4f58;
+  --palette-deep-sea-600: #125c67;
+  --palette-deep-sea-500: #156874;
+  --palette-deep-sea-400: #2f7f8a;
+  --palette-deep-sea-300: #5ca3ab;
 
-  /* Dark */
-  --palette-dark-brand:     #272727;
+  /* Steam derivatives */
+  --palette-steam-700: #c4bcbb;
+  --palette-steam-500: #EDE6E6;
+  --palette-steam-300: #f6f2f2;
+
+  /* Neutral ramp (Steam-derived) */
+  --palette-n-50:  #faf8f8;
+  --palette-n-100: #f5f1f1;
+  --palette-n-200: #d8cecc;
+  --palette-n-400: #b8ada9;
+  --palette-n-600: #8c7f7a;
+  --palette-n-900: #3a3230;
+
+  /* Deep Sea tonal */
+  --palette-ds-50:  #e8f4f6;
+  --palette-ds-100: #b8dde3;
+  --palette-ds-200: #7dbfcc;
+  --palette-ds-900: #072e33;
 }
 
 /* Theme: teal (default) */
 :root,
 [data-theme="teal"] {
-  --theme-brand:        var(--palette-teal-brand);
-  --theme-ink:          var(--palette-teal-neutral);
-  --theme-panel-bg:     linear-gradient(to bottom, var(--palette-teal-neutral) 0%, var(--palette-teal-mid) 50%, var(--palette-teal-brand) 100%);
-  --theme-field-bg:     rgba(39, 39, 39, 0.05);
-  --theme-field-border: rgba(39, 39, 39, 0.25);
+  --theme-brand:        var(--palette-deep-sea-500);
+  --theme-ink:          var(--palette-deep-sea-700);
+  --theme-panel-bg:     linear-gradient(to bottom, var(--palette-deep-sea-700) 0%, var(--palette-deep-sea-600) 55%, var(--palette-deep-sea-500) 100%);
+  --theme-field-bg:     rgba(237, 230, 230, 0.45);
+  --theme-field-border: rgba(21, 104, 116, 0.28);
 }
 
 /* Theme: purple */
 [data-theme="purple"] {
-  --theme-brand:        var(--palette-purple-brand);
-  --theme-ink:          var(--palette-purple-neutral);
-  --theme-panel-bg:     linear-gradient(to bottom, var(--palette-purple-neutral) 0%, var(--palette-purple-mid) 50%, var(--palette-purple-brand) 100%);
-  --theme-field-bg:     rgba(39, 39, 39, 0.05);
-  --theme-field-border: rgba(39, 39, 39, 0.25);
+  --theme-brand:        var(--palette-deep-sea-400);
+  --theme-ink:          var(--palette-deep-sea-700);
+  --theme-panel-bg:     linear-gradient(to bottom, var(--palette-deep-sea-600) 0%, var(--palette-deep-sea-500) 60%, var(--palette-deep-sea-400) 100%);
+  --theme-field-bg:     rgba(237, 230, 230, 0.52);
+  --theme-field-border: rgba(21, 104, 116, 0.24);
 }
 
 /* Theme: dark */
 [data-theme="dark"] {
-  --theme-brand:        var(--palette-dark-brand);
-  --theme-ink:          var(--palette-dark-brand);
-  --theme-panel-bg:     var(--palette-dark-brand);
-  --theme-field-bg:     rgba(39, 39, 39, 0.05);
-  --theme-field-border: rgba(39, 39, 39, 0.25);
+  --theme-brand:        var(--palette-deep-sea-700);
+  --theme-ink:          var(--palette-deep-sea-700);
+  --theme-panel-bg:     linear-gradient(to bottom, #0c4149 0%, var(--palette-deep-sea-700) 100%);
+  --theme-field-bg:     rgba(237, 230, 230, 0.36);
+  --theme-field-border: rgba(21, 104, 116, 0.35);
 }
 
-/* ─── Tailwind token registration ────────────────────────────────────────────
-   Components reference only these semantic names, never palette values.
-   Switching data-theme on <html> is all that's needed to change the theme.
-──────────────────────────────────────────────────────────────────────────── */
+/* Tailwind token registration
+  Components reference only these semantic names, never palette values.
+  Switching data-theme on <html> is all that's needed to change the theme. */
 @theme {
+  /* Theme-variable tokens */
   --color-brand:         var(--theme-brand);
   --color-ink:           var(--theme-ink);
   --color-field-bg:      var(--theme-field-bg);
   --color-field-border:  var(--theme-field-border);
-  --color-surface-white: #ffffff;
-  --font-sans:           var(--font-poppins);
+  --color-surface-white: var(--palette-steam-500);
+
+  /* Page-level structural tokens */
+  --color-page-bg:        var(--palette-n-50);
+  --color-surface:        #ffffff;
+  --color-text-secondary: var(--palette-n-600);
+  --color-destructive:    #dc2626;
+
+  /* Neutral scale */
+  --color-n-50:  var(--palette-n-50);
+  --color-n-100: var(--palette-n-100);
+  --color-n-200: var(--palette-n-200);
+  --color-n-400: var(--palette-n-400);
+  --color-n-600: var(--palette-n-600);
+  --color-n-900: var(--palette-n-900);
+
+  /* Deep Sea tonal */
+  --color-ds-50:  var(--palette-ds-50);
+  --color-ds-100: var(--palette-ds-100);
+  --color-ds-200: var(--palette-ds-200);
+  --color-ds-700: var(--palette-deep-sea-700);
+  --color-ds-900: var(--palette-ds-900);
+
+  --font-sans: var(--font-poppins);
 }
