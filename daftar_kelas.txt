@@ -1,0 +1,317 @@
+DAFTAR KELAS UNTUK DIAGRAM KELAS
+Platform Otomasi - Backend
+Generated: March 10, 2026
+
+================================================================================
+1. MODELS (Database Entities)
+================================================================================
+
+CLASS: Account
+- File: backend/app/models/account.py
+- Parent: Base
+- Atribut:
+  * + account_id: UUID (Primary Key)
+  * + full_name: String(255)
+  * + email: String(255) (Unique, Indexed)
+  * + password_hash: String(255)
+  * + role: Enum("admin", "user")
+  * + is_active: Boolean
+- Relasi:
+  * workflows: One-to-Many ke Workflow
+  * requests: One-to-Many ke Request
+
+CLASS: Workflow
+- File: backend/app/models/workflow.py
+- Parent: Base
+- Atribut:
+  * + workflow_id: UUID (Primary Key)
+  * + account_id: UUID (Foreign Key)
+  * + n8n_workflow_id: String(255)
+  * + workflow_name: String(255)
+  * + description: Text
+  * + is_active: Boolean
+- Relasi:
+  * account: Many-to-One ke Account
+  * executions: One-to-Many ke ExecutionHistory
+
+CLASS: Request
+- File: backend/app/models/request.py
+- Parent: Base
+- Atribut:
+  * + request_id: UUID (Primary Key)
+  * + account_id: UUID (Foreign Key)
+  * + request_type: Enum("trigger", "approval", "other")
+  * + request_detail: Text
+  * + request_status: Enum("pending", "approved", "rejected")
+- Relasi:
+  * account: Many-to-One ke Account
+
+CLASS: ExecutionHistory
+- File: backend/app/models/execution_history.py
+- Parent: Base
+- Atribut:
+  * + execution_id: UUID (Primary Key)
+  * + workflow_id: UUID (Foreign Key)
+  * + n8n_execution_id: String(255)
+  * + execution_status: Enum("running", "success", "error", "unknown")
+  * + error_message: Text
+- Relasi:
+  * workflow: Many-to-One ke Workflow
+
+================================================================================
+2. SCHEMAS (Pydantic untuk API Request/Response)
+================================================================================
+
+CLASS: AccountBase
+- File: backend/app/schemas/account_schema.py
+- Parent: BaseModel
+- Atribut:
+  * + full_name: str
+  * + email: EmailStr
+  * + role: str
+
+CLASS: AccountCreate
+- File: backend/app/schemas/account_schema.py
+- Parent: AccountBase
+- Atribut:
+  * + password: str (inherited dari AccountBase + tambahan)
+
+CLASS: AccountResponse
+- File: backend/app/schemas/account_schema.py
+- Parent: AccountBase
+- Atribut:
+  * + account_id: UUID
+  * + is_active: bool
+
+CLASS: LoginRequest
+- File: backend/app/schemas/account_schema.py
+- Parent: BaseModel
+- Atribut:
+  * + email: EmailStr
+  * + password: str
+
+CLASS: TokenResponse
+- File: backend/app/schemas/account_schema.py
+- Parent: BaseModel
+- Atribut:
+  * + access_token: str
+  * + token_type: str
+
+CLASS: WorkflowBase
+- File: backend/app/schemas/workflow_schema.py
+- Parent: BaseModel
+- Atribut:
+  * + workflow_name: str
+  * + description: str | None
+  * + n8n_workflow_id: str | None
+  * + is_active: bool
+
+CLASS: WorkflowCreate
+- File: backend/app/schemas/workflow_schema.py
+- Parent: WorkflowBase
+- Atribut: (inherited from WorkflowBase)
+
+CLASS: WorkflowUpdate
+- File: backend/app/schemas/workflow_schema.py
+- Parent: BaseModel
+- Atribut:
+  * + workflow_name: str | None
+  * + description: str | None
+  * + n8n_workflow_id: str | None
+  * + is_active: bool | None
+
+CLASS: WorkflowResponse
+- File: backend/app/schemas/workflow_schema.py
+- Parent: WorkflowBase
+- Atribut:
+  * + workflow_id: UUID
+  * + account_id: UUID
+
+CLASS: RequestBase
+- File: backend/app/schemas/request_schema.py
+- Parent: BaseModel
+- Atribut:
+  * + request_type: str
+  * + request_detail: str | None
+
+CLASS: RequestCreate
+- File: backend/app/schemas/request_schema.py
+- Parent: RequestBase
+- Atribut: (inherited from RequestBase)
+
+CLASS: RequestStatusUpdate
+- File: backend/app/schemas/request_schema.py
+- Parent: BaseModel
+- Atribut:
+  * + request_status: str
+
+CLASS: RequestResponse
+- File: backend/app/schemas/request_schema.py
+- Parent: RequestBase
+- Atribut:
+  * + request_id: UUID
+  * + account_id: UUID
+  * + request_status: str
+
+CLASS: ExecutionBase
+- File: backend/app/schemas/execution_schema.py
+- Parent: BaseModel
+- Atribut:
+  * + n8n_execution_id: str | None
+  * + execution_status: str
+  * + error_message: str | None
+
+CLASS: ExecutionCreate
+- File: backend/app/schemas/execution_schema.py
+- Parent: ExecutionBase
+- Atribut:
+  * + workflow_id: UUID
+
+CLASS: ExecutionResponse
+- File: backend/app/schemas/execution_schema.py
+- Parent: ExecutionBase
+- Atribut:
+  * + execution_id: UUID
+  * + workflow_id: UUID
+
+================================================================================
+3. SERVICES (Business Logic)
+================================================================================
+
+CLASS: N8nIntegrationService
+- File: backend/app/services/n8n_integration_service.py
+- Parent: None
+- Atribut:
+  * - _base_url: str
+  * - _headers: dict
+- Methods:
+  * __init__() -> None
+    Inisialisasi service dengan base URL dan API key dari settings
+  
+  * get_workflow(n8n_workflow_id: str) -> dict[str, Any]
+    Mendapatkan detail workflow dari N8N API
+  
+  * activate_workflow(n8n_workflow_id: str) -> dict[str, Any]
+    Mengaktifkan workflow di N8N
+  
+  * deactivate_workflow(n8n_workflow_id: str) -> dict[str, Any]
+    Menonaktifkan workflow di N8N
+  
+  * trigger_webhook(webhook_path: str, payload: dict[str, Any]) -> dict[str, Any]
+    Mengirim data ke N8N webhook endpoint
+
+================================================================================
+4. CONFIGURATION
+================================================================================
+
+CLASS: Settings
+- File: backend/app/core/config.py
+- Parent: BaseSettings
+- Atribut:
+  * + APP_NAME: str = "Platform otomasi"
+  * + DEBUG: bool = False
+  * + DATABASE_URL: str
+  * + SECRET_KEY: str
+  * + ALGORITHM: str = "HS256"
+  * + ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+  * + N8N_BASE_URL: str
+  * + N8N_API_KEY: str
+  * + ALLOWED_ORIGINS: list[str] = ["http://localhost:3000"]
+
+CLASS: Base
+- File: backend/app/core/database.py
+- Parent: DeclarativeBase
+- Deskripsi: Base class untuk semua model SQLAlchemy
+
+================================================================================
+5. FUNGSI UTILITY (Bukan Class, tapi penting untuk diagram)
+================================================================================
+
+Auth Service (backend/app/services/auth_service.py):
+- register_account(payload: AccountCreate, db: Session) -> Account
+  Register akun baru, hash password, simpan ke database
+  
+- login(payload: LoginRequest, db: Session) -> TokenResponse
+  Autentikasi user, validasi password, generate JWT token
+
+Workflow Service (backend/app/services/workflow_service.py):
+- get_workflows(account_id: UUID, db: Session) -> list[Workflow]
+  Mendapatkan semua workflows milik user tertentu
+  
+- get_workflow(workflow_id: UUID, account_id: UUID, db: Session) -> Workflow
+  Mendapatkan detail workflow berdasarkan ID
+  
+- create_workflow(payload: WorkflowCreate, account_id: UUID, db: Session) -> Workflow
+  Membuat workflow baru
+  
+- update_workflow(workflow_id: UUID, payload: WorkflowUpdate, account_id: UUID, db: Session) -> Workflow
+  Update data workflow
+  
+- delete_workflow(workflow_id: UUID, account_id: UUID, db: Session) -> None
+  Menghapus workflow
+
+Request Service (backend/app/services/request_service.py):
+- get_all_requests(db: Session) -> list[Request]
+  Mendapatkan semua requests (untuk admin)
+  
+- get_user_requests(account_id: UUID, db: Session) -> list[Request]
+  Mendapatkan requests milik user tertentu
+  
+- create_request(payload: RequestCreate, account_id: UUID, db: Session) -> Request
+  Membuat request baru
+  
+- update_request_status(request_id: UUID, payload: RequestStatusUpdate, db: Session) -> Request
+  Update status request (approve/reject)
+
+================================================================================
+RINGKASAN
+================================================================================
+
+Total Kelas: 23 kelas
+- 4 Model Database (Account, Workflow, Request, ExecutionHistory)
+- 17 Schema Pydantic (untuk validasi API)
+- 1 Service Class (N8nIntegrationService)
+- 2 Config/Base Class (Settings, Base)
+
+Total Fungsi Service: 9 fungsi
+- 2 Auth functions
+- 5 Workflow functions
+- 3 Request functions (misspell: sebenarnya 4)
+
+Arsitektur: Layered Architecture
+- Models: Data layer (SQLAlchemy ORM)
+- Schemas: API validation layer (Pydantic)
+- Services: Business logic layer
+- Core: Configuration dan database setup
+
+Relasi Database:
+Account 1---* Workflow
+Account 1---* Request
+Workflow 1---* ExecutionHistory
+
+================================================================================
+CATATAN UNTUK DIAGRAM KELAS UML
+================================================================================
+
+Untuk diagram kelas, Anda bisa fokus pada:
+
+1. Model Layer (inti sistem):
+   - Account, Workflow, Request, ExecutionHistory
+   - Tampilkan relasi foreign key dan relationships
+
+2. Schema Layer (opsional, tergantung detail yang diinginkan):
+   - Bisa disederhanakan atau digabung dengan model
+   - Atau ditampilkan sebagai DTO (Data Transfer Objects)
+
+3. Service Layer:
+   - N8nIntegrationService sebagai kelas
+   - Auth/Workflow/Request services bisa dibuat sebagai static classes
+     atau digambar sebagai package dengan fungsi-fungsi
+
+4. Gunakan stereotype untuk membedakan:
+   <<entity>> untuk Models
+   <<dto>> atau <<schema>> untuk Schemas
+   <<service>> untuk Services
+   <<configuration>> untuk Settings
+
+================================================================================
