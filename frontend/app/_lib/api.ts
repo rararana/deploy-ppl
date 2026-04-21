@@ -1,4 +1,5 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const TOKEN_KEY = "access_token";
 
 export interface ApiError {
   detail: string;
@@ -13,15 +14,20 @@ interface RequestOptions extends RequestInit {
  */
 export function getToken(): string | null {
   if (typeof window === "undefined") return null;
-  return localStorage.getItem("access_token");
+  return localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY);
 }
 
 /**
  * Set the auth token in localStorage
  */
-export function setToken(token: string): void {
+export function setToken(token: string, rememberMe = true): void {
   if (typeof window === "undefined") return;
-  localStorage.setItem("access_token", token);
+
+  localStorage.removeItem(TOKEN_KEY);
+  sessionStorage.removeItem(TOKEN_KEY);
+
+  const storage = rememberMe ? localStorage : sessionStorage;
+  storage.setItem(TOKEN_KEY, token);
 }
 
 /**
@@ -29,7 +35,9 @@ export function setToken(token: string): void {
  */
 export function removeToken(): void {
   if (typeof window === "undefined") return;
-  localStorage.removeItem("access_token");
+
+  localStorage.removeItem(TOKEN_KEY);
+  sessionStorage.removeItem(TOKEN_KEY);
 }
 
 /**

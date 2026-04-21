@@ -9,7 +9,9 @@ from app.api.execution_log_router import router as execution_log_router
 from app.api.webhook_router import router as webhook_router
 from app.core.config import settings
 from app.core.database import SessionLocal
+from app.services.account_seed import seed_accounts
 from app.services.catalog_seed import seed_catalog_items
+from app.services.workflow_seed import seed_workflows
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -38,9 +40,11 @@ def startup_event():
     # Initialize catalog data on application startup.
     db = SessionLocal()
     try:
+        seed_accounts(db)
         seed_catalog_items(db)
+        seed_workflows(db)
     except Exception as e:
-        print(f"Error during catalog seeding: {e}")
+        print(f"Error during seeding: {e}")
     finally:
         db.close()
 

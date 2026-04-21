@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
+import AuthShell from "./_components/AuthShell";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -17,7 +18,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" data-theme="teal" className={poppins.variable} suppressHydrationWarning>
-      <body className="bg-white text-ink antialiased font-sans">{children}</body>
+      <body className="bg-page-bg text-ink antialiased font-sans">
+        <AuthShell>{children}</AuthShell>
+      </body>
     </html>
   );
 }

@@ -17,25 +17,26 @@ export interface DrawerItem extends NavItem {
 export const NAV_ITEMS: NavItem[] = [
   { label: "Dashboard",          href: "/dashboard",           iconKey: "home"     },
   { label: "Triggers & Actions", href: "/catalog",             iconKey: "zap"      },
-  { label: "Workflows",          href: "/workflow-management", iconKey: "grid"     },
+  // { label: "Workflows",          href: "/workflow-management", iconKey: "grid"     },
   { label: "Logs",               href: "/execution-log",       iconKey: "activity" },
-  { label: "Team",               href: "/account-management",  iconKey: "users"    },
+  // { label: "Team",               href: "/account-management",  iconKey: "users"    },
+  { label: "Requests", href: "/requests", iconKey: "fileText" },
 ];
 
 // Drawer — main section
 // TODO: Replace hardcoded badges ("9", "3") with live counts fetched from the API
-export const DRAWER_MAIN: DrawerItem[] = [
-  { label: "Dashboard",          href: "/dashboard",           iconKey: "home",     badge: null },
-  { label: "Triggers & Actions", href: "/catalog",             iconKey: "zap",      badge: "9"  },
-  { label: "My workflows",       href: "/workflow-management", iconKey: "grid",     badge: "3"  },
-  { label: "Requests",           href: "/request-log",         iconKey: "fileText", badge: null },
-  { label: "Execution logs",     href: "/execution-log",       iconKey: "activity", badge: null },
-];
+// export const DRAWER_MAIN: DrawerItem[] = [
+//   { label: "Dashboard",          href: "/dashboard",           iconKey: "home",     badge: null },
+//   { label: "Triggers & Actions", href: "/catalog",             iconKey: "zap",      badge: "9"  },
+//   { label: "My workflows",       href: "/workflow-management", iconKey: "grid",     badge: "3"  },
+//   { label: "Requests",           href: "/request-log",         iconKey: "fileText", badge: null },
+//   { label: "Execution logs",     href: "/execution-log",       iconKey: "activity", badge: null },
+// ];
 
-// Drawer — management section
-// TODO: Replace hardcoded badges with live counts fetched from the API
+// // Drawer — management section
+// // TODO: Replace hardcoded badges with live counts fetched from the API
 export const DRAWER_MGMT: DrawerItem[] = [
-  { label: "Team members",  href: "/account-management", iconKey: "users",    badge: null },
+  // { label: "Team members",  href: "/account-management", iconKey: "users",    badge: null },
   { label: "Notifications", href: "#",                   iconKey: "bell",     badge: "2"  },
-  { label: "Settings",      href: "#",                   iconKey: "settings", badge: null },
+  // { label: "Settings",      href: "#",                   iconKey: "settings", badge: null },
 ];

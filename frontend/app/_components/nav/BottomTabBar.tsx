@@ -25,7 +25,7 @@ export default function BottomTabBar() {
             ].join(" ")}
           >
             <Icon k={iconKey} size={22} />
-            <span className="text-[10px] font-medium font-sans">{label}</span>
+            <span className="text-[10px] font-medium font-sans text-center">{label}</span>
           </Link>
         );
       })}

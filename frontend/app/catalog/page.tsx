@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import AppShell from "../_components/nav/AppShell";
 import Icon from "../_components/Icon";
 import { apiRequest } from "../_lib/api";
 
@@ -116,19 +115,9 @@ export default function CatalogPage() {
   }, [items, debouncedQuery, sortBy]);
 
   return (
-    <AppShell
-      title="Triggers & Actions"
-      mobileHeaderRight={
-        <button
-          aria-label="Settings"
-          className="w-9 h-9 flex items-center justify-center border-none bg-transparent cursor-pointer text-brand rounded-full hover:bg-n-100 transition-colors duration-150"
-        >
-          <Icon k="settings" size={18} />
-        </button>
-      }
-    >
+    <>
       {/* ── Mobile: extended sticky header (large title + search + seg) ─── */}
-      {/* top-11 = 44px = AppShell compact bar height                        */}
+      {/* top-11 = 44px = global mobile top bar height                        */}
       <div className="md:hidden sticky top-11 z-30 bg-surface border-b border-n-200">
         <div className="px-4 pt-2 pb-3">
           <h1 className="text-[28px] font-bold text-ink tracking-[-0.02em] leading-[1.1]">
@@ -173,7 +162,7 @@ export default function CatalogPage() {
       </div>
 
       {/* ── Page body ──────────────────────────────────────────────────────── */}
-      <div className="max-w-[960px] mx-auto px-4 md:px-8 pt-4 md:pt-10 pb-[100px] md:pb-20">
+      <div className="mx-auto px-4 md:px-8 pt-4 md:pt-10 pb-[100px] md:pb-20">
 
         {/* Desktop page header */}
         <header className="hidden md:block mb-8">
@@ -255,6 +244,6 @@ export default function CatalogPage() {
           </div>
         )}
       </div>
-    </AppShell>
+    </>
   );
 }

@@ -1,9 +1,29 @@
+from datetime import datetime, timedelta
+import hashlib
+import secrets
+import asyncio
+
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.core.security import create_access_token, hash_password, revoke_token, verify_password
 from app.models.account import Account
-from app.schemas.account_schema import AccountCreate, LoginRequest, TokenResponse
+from app.schemas.account_schema import (
+    AccountCreate,
+    ForgotPasswordRequest,
+    ForgotPasswordResponse,
+    LoginRequest,
+    ResetPasswordRequest,
+    TokenResponse,
+)
+from app.services.email_service import send_password_reset_email
+
+
+RESET_TOKEN_EXPIRE_MINUTES = 30
+
+
+def _hash_reset_token(token: str) -> str:
+    return hashlib.sha256(token.encode()).hexdigest()
 
 
 def register_account(payload: AccountCreate, db: Session) -> Account:
@@ -96,3 +116,56 @@ def login(payload: LoginRequest, db: Session) -> TokenResponse:
 def logout(token: str) -> dict[str, str]:
     revoke_token(token)
     return {"detail": "Logged out successfully."}
+
+
+def request_password_reset(payload: ForgotPasswordRequest, db: Session) -> ForgotPasswordResponse:
+    account = db.query(Account).filter(Account.email == payload.email).first()
+
+    if not account:
+        return ForgotPasswordResponse(
+            message="If the account exists, a password reset email has been sent.",
+        )
+
+    reset_token = secrets.token_urlsafe(32)
+    account.reset_password_token_hash = _hash_reset_token(reset_token)
+    account.reset_password_token_expires_at = datetime.utcnow() + timedelta(minutes=RESET_TOKEN_EXPIRE_MINUTES)
+    db.add(account)
+    db.commit()
+
+    # Send password reset email
+    try:
+        sent = asyncio.run(send_password_reset_email(account.email, reset_token))
+        if not sent:
+            print("Warning: Password reset token was generated but email delivery failed.")
+    except Exception as e:
+        print(f"Warning: Failed to send password reset email: {str(e)}")
+        # Don't fail the request if email fails to send
+
+    return ForgotPasswordResponse(
+        message="If the account exists, a password reset email has been sent.",
+    )
+
+
+def reset_password(payload: ResetPasswordRequest, db: Session) -> dict[str, str]:
+    token_hash = _hash_reset_token(payload.token)
+    account = (
+        db.query(Account)
+        .filter(Account.reset_password_token_hash == token_hash)
+        .filter(Account.reset_password_token_expires_at.isnot(None))
+        .filter(Account.reset_password_token_expires_at > datetime.utcnow())
+        .first()
+    )
+
+    if not account:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired reset token.",
+        )
+
+    account.password_hash = hash_password(payload.new_password)
+    account.reset_password_token_hash = None
+    account.reset_password_token_expires_at = None
+    db.add(account)
+    db.commit()
+
+    return {"detail": "Password reset successfully."}

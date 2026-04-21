@@ -1,15 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
 import Icon from "../Icon";
 import LogoMark from "../LogoMark";
-import { DRAWER_MAIN, DRAWER_MGMT, DrawerItem } from "./nav-data";
+import { DRAWER_MGMT, DrawerItem } from "./nav-data";
+import { logout } from "../../_lib/auth";
+import { UserProfile } from "../../_lib/useProfile";
 
 interface NavDrawerProps {
   open: boolean;
   onClose: () => void;
-  onLogout: () => void;
+  onLogout: () => Promise<void>;
+  profile?: UserProfile | null;
 }
 
 function DrawerNavItem({
@@ -50,15 +54,39 @@ function DrawerNavItem({
   );
 }
 
-export default function NavDrawer({ open, onClose, onLogout }: NavDrawerProps) {
+export default function NavDrawer({
+  open,
+  onClose,
+  onLogout,
+  profile,
+}: NavDrawerProps) {
   const pathname = usePathname();
+  const router = useRouter();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  // TODO: Replace hardcoded user display with data decoded from JWT
-  // or fetched from GET /auth/me. See getCurrentRole() in _lib/auth.ts for
-  // the token-decode pattern.
-  const userInitials = "AR";
-  const userDisplayName = "Ahmad Rizky";
-  const userRole = "Admin · IT Division";
+  const userInitials = profile?.full_name
+    ?.split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase() || "AR";
+  const userDisplayName = profile?.full_name || "User";
+  const userRole = profile?.role ? profile.role.charAt(0).toUpperCase() + profile.role.slice(1) : "User";
+
+  async function handleLogout() {
+    if (isLoggingOut) return;
+    setIsLoggingOut(true);
+
+    try {
+      await logout();
+      await onLogout();
+    } catch (error) {
+      console.error("Logout failed", error);
+    } finally {
+      router.replace("/login");
+      router.refresh();
+      setIsLoggingOut(false);
+    }
+  }
 
   return (
     <>
@@ -121,7 +149,7 @@ export default function NavDrawer({ open, onClose, onLogout }: NavDrawerProps) {
 
         {/* Nav items */}
         <nav className="flex-1 overflow-y-auto py-2" aria-label="Drawer navigation">
-          <p className="text-[10px] font-semibold tracking-[0.12em] uppercase text-n-400 px-5 pt-3 pb-1">
+          {/* <p className="text-[10px] font-semibold tracking-[0.12em] uppercase text-n-400 px-5 pt-3 pb-1">
             Main
           </p>
           {DRAWER_MAIN.map((item) => (
@@ -131,11 +159,11 @@ export default function NavDrawer({ open, onClose, onLogout }: NavDrawerProps) {
               active={pathname === item.href}
               onClose={onClose}
             />
-          ))}
+          ))} */}
 
-          <p className="text-[10px] font-semibold tracking-[0.12em] uppercase text-n-400 px-5 pt-4 pb-1">
+          {/* <p className="text-[10px] font-semibold tracking-[0.12em] uppercase text-n-400 px-5 pt-4 pb-1">
             Management
-          </p>
+          </p> */}
           {DRAWER_MGMT.map((item) => (
             <DrawerNavItem
               key={item.label}
@@ -149,11 +177,12 @@ export default function NavDrawer({ open, onClose, onLogout }: NavDrawerProps) {
         {/* Footer */}
         <div className="px-4 pt-3 pb-6 border-t border-n-100 shrink-0">
           <button
-            onClick={onLogout}
-            className="w-full h-[46px] rounded-[10px] border border-n-200 bg-n-50 font-sans text-[14px] font-medium text-text-secondary cursor-pointer flex items-center justify-center gap-2 transition-all duration-150 hover:bg-n-100 hover:text-ink"
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            className="w-full h-[46px] rounded-[10px] border border-n-200 bg-n-50 font-sans text-[14px] font-medium text-text-secondary cursor-pointer flex items-center justify-center gap-2 transition-all duration-150 hover:bg-n-100 hover:text-ink disabled:opacity-50"
           >
             <Icon k="logOut" size={15} />
-            Sign out
+            {isLoggingOut ? "Signing out..." : "Sign out"}
           </button>
         </div>
       </div>
