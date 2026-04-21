@@ -1,24 +1,49 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
 import Icon from "../Icon";
 import LogoMark from "../LogoMark";
 import { NAV_ITEMS } from "./nav-data";
 
+import { logout } from "../../_lib/auth";
+import { UserProfile } from "../../_lib/useProfile";
+
 interface DesktopNavbarProps {
-  onLogout: () => void;
+  profile?: UserProfile | null;
 }
 
-export default function DesktopNavbar({ onLogout }: DesktopNavbarProps) {
+export default function DesktopNavbar({ profile }: DesktopNavbarProps) {
   const pathname = usePathname();
+  const router = useRouter();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  // TODO: Replace hardcoded initials and display name.
-  // Decode full_name from the JWT payload or fetch from GET /auth/me once
-  // that endpoint exists. getCurrentRole() in _lib/auth.ts shows the pattern
-  // for decoding the token.
-  const userInitials = "AR";
-  const userDisplayName = "Ahmad Rizky";
+  const userInitials = profile?.full_name
+    ?.split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase() || "AR";
+  const userDisplayName = profile?.full_name || "User";
+
+  async function handleLogout() {
+    if (isLoggingOut) return;
+    setIsLoggingOut(true);
+
+    try {
+      await logout();
+    } catch (error) {
+      console.error("Logout failed", error);
+    } finally {
+      router.replace("/login");
+      router.refresh();
+      setIsLoggingOut(false);
+    }
+  }
+
+  function handleNotificationsClick() {
+    router.push("/notifications");
+  }
 
   return (
     <nav
@@ -57,24 +82,32 @@ export default function DesktopNavbar({ onLogout }: DesktopNavbarProps) {
 
       {/* User + sign out */}
       <div className="flex items-center gap-2 ml-auto shrink-0">
-        {/* TODO: Wire to a profile dropdown or /profile page once
-            GET /auth/me is implemented. */}
-        <button className="flex items-center gap-2 px-2.5 py-[5px] rounded-[10px] hover:bg-n-100 border-none bg-transparent cursor-pointer transition-colors duration-150">
+
+        <button
+          aria-label="Notifications"
+          onClick={handleNotificationsClick}
+          className="w-9 h-9 flex items-center justify-center border-none bg-transparent cursor-pointer text-brand rounded-full hover:bg-n-100 transition-colors duration-150"
+        >
+          <Icon k="bell" size={18} />
+        </button>
+        <div className="w-px h-5 bg-n-200 shrink-0" />
+        {/* <button className="flex items-center gap-2 px-2.5 py-[5px] rounded-[10px] hover:bg-n-100 border-none bg-transparent cursor-pointer transition-colors duration-150"> */}
           <div className="w-[30px] h-[30px] rounded-full bg-ds-50 flex items-center justify-center text-[11px] font-bold text-ds-700 shrink-0">
             {userInitials}
           </div>
           <span className="text-[13px] font-medium text-ink font-sans">{userDisplayName}</span>
-          <Icon k="chevDown" size={14} className="text-n-400" />
-        </button>
+          {/* <Icon k="chevDown" size={14} className="text-n-400" /> */}
+        {/* </button> */}
 
         <div className="w-px h-5 bg-n-200 shrink-0" />
 
         <button
-          onClick={onLogout}
+          onClick={handleLogout}
+          disabled={isLoggingOut}
           className="h-[34px] px-4 rounded-lg border border-n-200 bg-surface font-sans text-[13px] font-medium text-text-secondary cursor-pointer hover:border-n-400 hover:text-ink flex items-center gap-1.5 transition-all duration-150"
         >
           <Icon k="logOut" size={13} />
-          Sign out
+          {isLoggingOut ? "Signing out..." : "Sign out"}
         </button>
       </div>
     </nav>

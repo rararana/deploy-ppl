@@ -5,7 +5,15 @@ from sqlalchemy.orm import Session
 from app.api.deps import get_current_account
 from app.core.database import get_db
 from app.models.account import Account
-from app.schemas.account_schema import AccountCreate, AccountResponse, LoginRequest, TokenResponse
+from app.schemas.account_schema import (
+    AccountCreate,
+    AccountResponse,
+    ForgotPasswordRequest,
+    ForgotPasswordResponse,
+    LoginRequest,
+    ResetPasswordRequest,
+    TokenResponse,
+)
 from app.services import auth_service
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -28,3 +36,21 @@ def logout(
     _: Account = Depends(get_current_account),
 ):
     return auth_service.logout(token)
+
+
+@router.post("/forgot-password", response_model=ForgotPasswordResponse)
+def forgot_password(payload: ForgotPasswordRequest, db: Session = Depends(get_db)):
+    return auth_service.request_password_reset(payload, db)
+
+
+@router.post("/reset-password")
+def reset_password(payload: ResetPasswordRequest, db: Session = Depends(get_db)):
+    return auth_service.reset_password(payload, db)
+
+
+@router.get("/me", response_model=AccountResponse)
+def get_current_user(
+    current_account: Account = Depends(get_current_account),
+):
+    """Get current authenticated user's profile."""
+    return current_account

@@ -1,31 +1,45 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import FormField from "../_components/FormField";
 import PrimaryButton from "../_components/PrimaryButton";
 import Logo from "../_components/Logo";
-import { login } from "../_lib/auth";
+import Icon from "../_components/Icon";
+import { clearRememberedEmail, getRememberedEmail, login } from "../_lib/auth";
 
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const rememberedEmail = getRememberedEmail();
+    if (rememberedEmail) {
+      setEmail(rememberedEmail);
+      setRememberMe(true);
+    }
+  }, []);
 
   async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
     try {
-      await login({ email, password });
+      await login({ email, password }, rememberMe);
       router.push("/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Invalid email or password.");
       setIsLoading(false);
+    } finally {
+      if (!rememberMe) {
+        clearRememberedEmail();
+      }
     }
   }
 
@@ -50,17 +64,26 @@ export default function LoginPage() {
               required
             />
           </div>
-          <div className="flex flex-col gap-1">
+          <div className="relative flex flex-col gap-1">
             <label htmlFor="password" className="sr-only">Password</label>
             <FormField
               id="password"
-              type="password"
+              type={showPassword ? "text" : "password"}
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="current-password"
+              className="pr-20"
               required
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              className="absolute right-4 top-1/2 -translate-y-1/2 inline-flex items-center justify-center text-text-secondary hover:text-ink"
+            >
+              <Icon k={showPassword ? "eyeOff" : "eye"} size={18} />
+            </button>
           </div>
 
           <div className="flex flex-col justify-between gap-2 pt-1 sm:flex-row sm:items-center">
@@ -76,7 +99,7 @@ export default function LoginPage() {
             </label>
             <button
               type="button"
-              onClick={() => alert("Forgot password")}
+              onClick={() => router.push("/forgot-password")}
               className="min-h-11 self-start px-2 text-sm font-medium underline text-ink hover:opacity-70 sm:self-auto"
             >
               Forgot password?

@@ -1,6 +1,7 @@
 import uuid
+from datetime import datetime
 
-from sqlalchemy import Boolean, Column, Enum, String
+from sqlalchemy import Boolean, Column, DateTime, Enum, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
@@ -16,3 +17,5 @@ class Account(Base):
     password_hash = Column(String(255), nullable=False)
     role = Column(Enum("admin", "user", name="account_role"), nullable=False, default="user")
     is_active = Column(Boolean, nullable=False, default=True)
+    reset_password_token_hash = Column(String(255), nullable=True)
+    reset_password_token_expires_at = Column(DateTime, nullable=True)
