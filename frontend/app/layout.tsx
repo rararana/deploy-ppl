@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
+import "@xyflow/react/dist/style.css";
 import AuthShell from "./_components/AuthShell";
 
 const poppins = Poppins({
