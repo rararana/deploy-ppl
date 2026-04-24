@@ -120,10 +120,10 @@ export default function CatalogPage() {
       {/* top-11 = 44px = global mobile top bar height                        */}
       <div className="md:hidden sticky top-11 z-30 bg-surface border-b border-n-200">
         <div className="px-4 pt-2 pb-3">
-          <h1 className="text-[28px] font-bold text-ink tracking-[-0.02em] leading-[1.1]">
-            Catalog
+          <h1 className="text-3xl font-bold text-ink">
+            Triggers &amp; Actions
           </h1>
-          <p className="text-[13px] text-text-secondary mt-0.5">
+          <p className="text-sm text-text-secondary mt-0.5">
             Automate your institution&apos;s workflows
           </p>
         </div>
@@ -162,14 +162,14 @@ export default function CatalogPage() {
       </div>
 
       {/* ── Page body ──────────────────────────────────────────────────────── */}
-      <div className="mx-auto px-4 md:px-8 pt-4 md:pt-10 pb-[100px] md:pb-20">
+      <div className="mx-auto max-w-[2200px] px-4 md:px-8 pt-4 md:pt-10 pb-[100px] md:pb-20">
 
         {/* Desktop page header */}
         <header className="hidden md:block mb-8">
-          <p className="text-[11px] font-semibold tracking-[0.14em] uppercase text-brand mb-1.5">
+          {/* <p className="text-xs font-semibold tracking-[0.14em] uppercase text-brand mb-1.5">
             Automation catalog
-          </p>
-          <h1 className="text-[26px] font-bold text-ink leading-[1.2]">
+          </p> */}
+          <h1 className="text-3xl md:text-4xl font-bold text-ink">
             Triggers &amp; Actions
           </h1>
           <p className="text-sm text-text-secondary mt-1.5">

@@ -18,6 +18,12 @@ def create_workflow(payload: WorkflowCreate, db: Session = Depends(get_db)):
     return workflow_model_service.create_workflow(payload, db)
 
 
+@router.get("/{workflow_id}", response_model=WorkflowResponse)
+def get_workflow(workflow_id: str, db: Session = Depends(get_db)):
+    from uuid import UUID
+    return workflow_model_service.get_workflow(UUID(workflow_id), db)
+
+
 @router.put("/{workflow_id}", response_model=WorkflowResponse)
 def update_workflow(workflow_id: str, payload: WorkflowUpdate, db: Session = Depends(get_db)):
     from uuid import UUID

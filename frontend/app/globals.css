@@ -1,2 +1,37 @@
 @import "tailwindcss";
 @import "../styles/colors.css";
+
+/* Tailwind token registration
+   Components reference only these semantic names, never palette values.
+   Switching data-theme on <html> is all that's needed to change the theme. */
+@theme {
+  /* Theme-variable tokens */
+  --color-brand:         var(--theme-brand);
+  --color-ink:           var(--theme-ink);
+  --color-field-bg:      var(--theme-field-bg);
+  --color-field-border:  var(--theme-field-border);
+  --color-surface-white: var(--palette-steam-500);
+
+  /* Page-level structural tokens */
+  --color-page-bg:        var(--palette-n-50);
+  --color-surface:        #ffffff;
+  --color-text-secondary: var(--palette-n-600);
+  --color-destructive:    #dc2626;
+
+  /* Neutral scale */
+  --color-n-50:  var(--palette-n-50);
+  --color-n-100: var(--palette-n-100);
+  --color-n-200: var(--palette-n-200);
+  --color-n-400: var(--palette-n-400);
+  --color-n-600: var(--palette-n-600);
+  --color-n-900: var(--palette-n-900);
+
+  /* Deep Sea tonal */
+  --color-ds-50:  var(--palette-ds-50);
+  --color-ds-100: var(--palette-ds-100);
+  --color-ds-200: var(--palette-ds-200);
+  --color-ds-700: var(--palette-deep-sea-700);
+  --color-ds-900: var(--palette-ds-900);
+
+  --font-sans: var(--font-poppins);
+}

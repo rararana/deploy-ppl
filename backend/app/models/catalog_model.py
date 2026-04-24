@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Column, DateTime, Enum, String, Text
+from sqlalchemy import JSON, Column, DateTime, Enum, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 
 from app.core.database import Base
@@ -36,7 +36,11 @@ class CatalogItem(Base):
     # Classification
     category = Column(String(50), nullable=False)  # "trigger" or "action"
     item_type = Column(String(50), nullable=False)  # "Event", "Schedule", "Webhook", "API"
-    
+    action_key = Column(String(100), nullable=True)  # maps to backend action registry key
+
+    # Parameter schema for frontend form rendering
+    parameter_schema = Column(JSON, nullable=False, default=dict)
+
     # Metadata
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
     

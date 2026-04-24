@@ -120,7 +120,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <main className="min-h-screen p-6 md:p-10">
+    <main className="min-h-screen p-6 md:p-10 max-w-[2200px] mx-auto">
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl md:text-4xl font-bold text-ink mb-2">Workflows</h1>
