@@ -1,7 +1,6 @@
 """
 Data seeding script for accounts.
-Populates the database with a default account that can be customized by editing
-the email string below.
+Populates the database with default accounts for local development.
 """
 
 from sqlalchemy.orm import Session
@@ -10,30 +9,45 @@ from app.core.security import hash_password
 from app.models.account import Account
 
 
-SEED_ACCOUNT_EMAIL = "bertha.soliany@gmail.com"
-SEED_ACCOUNT_FULL_NAME = "Seeded User"
-SEED_ACCOUNT_PASSWORD = "Password123!"
-SEED_ACCOUNT_ROLE = "user"
+DEFAULT_ACCOUNTS = [
+    {
+        "full_name": "Admin",
+        "email": "admin@itb.ac.id",
+        "role": "admin",
+        "password": "password",
+    },
+    {
+        "full_name": "User",
+        "email": "user@itb.ac.id",
+        "role": "user",
+        "password": "password",
+    },
+]
 
 
 def seed_accounts(db: Session) -> None:
     """
-    Seed a default account if the configured email does not exist.
-
-    Update `SEED_ACCOUNT_EMAIL` to any email address you want to seed.
+    Seed default accounts if their configured emails do not exist.
     """
-    existing_account = db.query(Account).filter(Account.email == SEED_ACCOUNT_EMAIL).first()
-    if existing_account:
-        print(f"Account seed skipped: {SEED_ACCOUNT_EMAIL} already exists")
-        return
+    inserted_count = 0
+    skipped_count = 0
 
-    account = Account(
-        full_name=SEED_ACCOUNT_FULL_NAME,
-        email=SEED_ACCOUNT_EMAIL,
-        password_hash=hash_password(SEED_ACCOUNT_PASSWORD),
-        role=SEED_ACCOUNT_ROLE,
-        is_active=True,
-    )
-    db.add(account)
+    for account_data in DEFAULT_ACCOUNTS:
+        existing_account = db.query(Account).filter(Account.email == account_data["email"]).first()
+        if existing_account:
+            skipped_count += 1
+            print(f"Account seed skipped: {account_data['email']} already exists")
+            continue
+
+        account = Account(
+            full_name=account_data["full_name"],
+            email=account_data["email"],
+            password_hash=hash_password(account_data["password"]),
+            role=account_data["role"],
+            is_active=True,
+        )
+        db.add(account)
+        inserted_count += 1
+
     db.commit()
-    print(f"Seeded account: {SEED_ACCOUNT_EMAIL}")
+    print(f"Account seeding complete: inserted {inserted_count}, skipped {skipped_count}")
