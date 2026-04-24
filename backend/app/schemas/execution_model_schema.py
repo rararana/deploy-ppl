@@ -5,10 +5,11 @@ from pydantic import BaseModel, Field
 
 
 class ExecutionBase(BaseModel):
-    workflow_id: UUID
+    workflow_id: UUID | None = None
     status: str = "pending"
     initial_payload: dict = Field(default_factory=dict)
     current_state: dict = Field(default_factory=dict)
+    error_details: str | None = None
 
 
 class ExecutionCreate(ExecutionBase):
