@@ -19,7 +19,6 @@ class Workflow(Base):
     is_active = Column(Boolean, nullable=False, default=True)
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
     
-    request_logs = relationship("RequestLog", back_populates="workflow", cascade="all, delete-orphan")
     execution_logs = relationship("ExecutionLog", back_populates="workflow", cascade="all, delete-orphan")
     executions = relationship("ExecutionModel", back_populates="workflow", cascade="all, delete-orphan")
 

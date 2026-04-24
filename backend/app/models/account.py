@@ -19,3 +19,5 @@ class Account(Base):
     is_active = Column(Boolean, nullable=False, default=True)
     reset_password_token_hash = Column(String(255), nullable=True)
     reset_password_token_expires_at = Column(DateTime, nullable=True)
+
+    requests = relationship("Request", back_populates="account")
