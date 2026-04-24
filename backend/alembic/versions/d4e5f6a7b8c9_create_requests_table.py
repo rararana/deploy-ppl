@@ -1,7 +1,7 @@
 """create requests table
 
 Revision ID: d4e5f6a7b8c9
-Revises: b7c8d9e0f1a2
+Revises: e3f4g5h6i7j8
 Create Date: 2026-04-23 03:10:13.327473
 
 """
@@ -12,7 +12,7 @@ from alembic import op
 from sqlalchemy.dialects import postgresql
 
 revision: str = "d4e5f6a7b8c9"
-down_revision: Union[str, Sequence[str], None] = "b7c8d9e0f1a2"
+down_revision: Union[str, Sequence[str], None] = "e3f4g5h6i7j8"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
