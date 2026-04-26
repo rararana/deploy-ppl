@@ -165,8 +165,17 @@ export default function WorkflowCanvas({ initialSchema, onSave, isSaving }: Work
   }
 
   function buildSchema() {
+    // hapus node dan edge terkait yang blm dikonfigurasi
+    const configuredNodes = nodes.filter(
+      (n) => (n.data as unknown as WorkflowNodeData).isConfigured
+    );
+    const configuredNodeIds = new Set(configuredNodes.map((n) => n.id));
+    const validEdges = edges.filter(
+      (e) => configuredNodeIds.has(e.source) && configuredNodeIds.has(e.target)
+    );
+
     return {
-      nodes: nodes.map((n) => ({
+      nodes: configuredNodes.map((n) => ({
         id: n.id,
         type: n.type,
         position: n.position,
@@ -174,7 +183,7 @@ export default function WorkflowCanvas({ initialSchema, onSave, isSaving }: Work
         action_key: (n.data as unknown as WorkflowNodeData).catalogItem?.action_key ?? null,
         config: (n.data as unknown as WorkflowNodeData).config ?? {},
       })),
-      edges: edges.map((e) => ({ id: e.id, source: e.source, target: e.target })),
+      edges: validEdges.map((e) => ({ id: e.id, source: e.source, target: e.target })),
     };
   }
 

@@ -73,6 +73,7 @@ export default function NodeSidebar({ nodeId, nodeData, onClose, onSave, onDelet
   const [selected, setSelected] = useState<CatalogItem | undefined>(nodeData.catalogItem);
   const [config, setConfig] = useState<Record<string, unknown>>(nodeData.config ?? {});
   const [loadingCatalog, setLoadingCatalog] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const category = nodeData.nodeType;
 
@@ -88,14 +89,27 @@ export default function NodeSidebar({ nodeId, nodeData, onClose, onSave, onDelet
       .finally(() => setLoadingCatalog(false));
   }, [step, category]);
 
+  function validate() {
+    const newErrors: Record<string, string> = {};
+    fields.forEach((field) => {
+      if (field.required && !config[field.key]) {
+        newErrors[field.key] = `${field.label} wajib diisi!`
+      }
+    });
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  }
+
   function handlePick(item: CatalogItem) {
     setSelected(item);
     setConfig({});
+    setErrors({});
     setStep("configure");
   }
 
   function handleSave() {
     if (!selected) return;
+    if (!validate()) return;
     onSave(nodeId, selected, config);
     onClose();
   }
@@ -186,12 +200,17 @@ export default function NodeSidebar({ nodeId, nodeData, onClose, onSave, onDelet
                     {field.required && <span className="text-destructive">*</span>}
                   </label>
                   {field.type !== "checkbox" && (
-                    <FieldInput field={field} value={config[field.key]} onChange={(v) => setConfig((c) => ({ ...c, [field.key]: v }))} />
+                    <FieldInput field={field} value={config[field.key]} 
+                    onChange={(v) => { setConfig((c) => ({ ...c, [field.key]: v })); if (errors[field.key]) setErrors((e) => ({ ...e, [field.key]: "" })); }} />
                   )}
                   {field.type === "checkbox" && (
-                    <FieldInput field={field} value={config[field.key]} onChange={(v) => setConfig((c) => ({ ...c, [field.key]: v }))} />
+                    <FieldInput field={field} value={config[field.key]} 
+                    onChange={(v) => { setConfig((c) => ({ ...c, [field.key]: v })); if (errors[field.key]) setErrors((e) => ({ ...e, [field.key]: "" })); }} />
                   )}
-                  {field.hint && field.type !== "checkbox" && (
+                  {errors[field.key] && (
+                    <p className="text-[10px] text-destructive">{errors[field.key]}</p>
+                  )}
+                  {field.hint && field.type !== "checkbox" && !errors[field.key] && (
                     <p className="text-[10px] text-text-secondary">{field.hint}</p>
                   )}
                 </div>
