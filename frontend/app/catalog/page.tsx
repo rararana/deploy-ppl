@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from "react";
 import Icon from "../_components/Icon";
 import { apiRequest } from "../_lib/api";
+import { useRouter } from "next/navigation";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
@@ -21,6 +22,40 @@ interface CatalogItem {
 // ─── Card ──────────────────────────────────────────────────────────────────────
 
 function CatalogCard({ item, mode }: { item: CatalogItem; mode: Mode }) {
+  const router = useRouter();
+
+  async function handleUse() {
+    try {
+      const initialNode = {
+        id: `${mode}-1`,
+        type: mode,
+        position: {x: 200, y: 60},
+        data: {
+          label: item.name,
+          nodeType: mode,
+          catalogItem: item,
+          config: {},
+          isConfigured: false, // config not filled yet
+        }
+      };
+
+      const workflow = await apiRequest<{id: string}>("/workflows/", {
+        method: "POST",
+        body: JSON.stringify({
+          name: `Untitled Workflow`,
+          workflow_schema: {
+            nodes: [initialNode],
+            edges: [],
+          },
+        }),
+      });
+
+      router.push(`/canvas/${workflow.id}`);
+    } catch (err) {
+      console.error("Failed to create workflow:", err);
+    }
+  }
+
   return (
     <div className="group relative bg-surface rounded-[12px] border border-n-200 overflow-hidden flex flex-col gap-2 md:gap-3 shadow-[0_1px_3px_rgba(0,0,0,0.06)] cursor-pointer transition-all duration-[180ms] hover:border-ds-100 hover:shadow-[0_4px_12px_rgba(21,104,116,0.08)] active:scale-[0.97] active:bg-n-50 md:active:scale-100 md:hover:-translate-y-px p-[14px_12px] md:p-[18px_16px] min-h-[130px] md:min-h-0">
       {/* Top accent bar */}
@@ -43,9 +78,9 @@ function CatalogCard({ item, mode }: { item: CatalogItem; mode: Mode }) {
       </div>
 
       {/* CTA — desktop only */}
-      <div className="hidden md:flex items-center mt-auto pt-2.5 border-t border-n-100">
-        <span className="text-[11px] font-semibold text-brand flex items-center gap-1">
-          Use this {mode}
+      <div onClick={handleUse} className="hidden md:flex items-center mt-auto pt-2.5 border-t border-n-100">
+        <span className="text-[11px] font-semibold text-brand flex items-center gap-1 hover:underline">
+          {`Use this ${mode}`}
           <Icon k="chevRight" size={12} />
         </span>
       </div>
