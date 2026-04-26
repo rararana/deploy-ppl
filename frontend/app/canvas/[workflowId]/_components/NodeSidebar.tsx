@@ -68,7 +68,7 @@ function FieldInput({ field, value, onChange }: {
 }
 
 export default function NodeSidebar({ nodeId, nodeData, onClose, onSave, onDelete }: NodeSidebarProps) {
-  const [step, setStep] = useState<"pick" | "configure">(nodeData.isConfigured ? "configure" : "pick");
+  const [step, setStep] = useState<"pick" | "configure">(nodeData.catalogItem ? "configure" : "pick");
   const [catalogItems, setCatalogItems] = useState<CatalogItem[]>([]);
   const [selected, setSelected] = useState<CatalogItem | undefined>(nodeData.catalogItem);
   const [config, setConfig] = useState<Record<string, unknown>>(nodeData.config ?? {});

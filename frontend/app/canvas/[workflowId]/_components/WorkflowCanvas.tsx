@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   ReactFlow,
   Background,
@@ -71,6 +71,27 @@ export default function WorkflowCanvas({ initialSchema, onSave, isSaving }: Work
   const [nodes, setNodes, onNodesChange] = useNodesState(buildInitialNodes(initialSchema));
   const [edges, setEdges, onEdgesChange] = useEdgesState(buildInitialEdges(initialSchema));
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const firstUnconfigured = nodes.find(
+      (n) => {
+        const d = n.data as unknown as WorkflowNodeData;
+        return d.catalogItem && !d.isConfigured;
+      }
+    );
+    if (firstUnconfigured) {
+        const d = firstUnconfigured.data as unknown as WorkflowNodeData;
+        // mark as configured
+        setNodes((nds) =>
+          nds.map((n) =>
+            n.id === firstUnconfigured.id
+              ? { ...n, data: { ...n.data, isConfigured: true, label: d.catalogItem!.name } }
+              : n
+          )
+        );
+        setSelectedNodeId(firstUnconfigured.id);
+    }
+  }, []); 
 
   const selectedNode = nodes.find((n) => n.id === selectedNodeId) ?? null;
 
